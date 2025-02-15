@@ -1,0 +1,77 @@
+{
+    "dashboard": {
+      "id": null,
+      "title": "AI Model & Vector DB Monitoring",
+      "description": "Monitoring AI Model Serving (FastAPI) & Vector Database (ChromaDB) with Prometheus",
+      "panels": [
+        {
+          "title": "CPU Usage",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(container_cpu_usage_seconds_total{namespace='default',pod=~'aiops-app.*'}[5m])",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "gridPos": { "x": 0, "y": 0, "w": 12, "h": 5 }
+        },
+        {
+          "title": "Memory Usage",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "container_memory_usage_bytes{namespace='default',pod=~'aiops-app.*'}",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "gridPos": { "x": 12, "y": 0, "w": 12, "h": 5 }
+        },
+        {
+          "title": "API Requests (Model Serving)",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(http_requests_total{job='model-serving'}[5m])",
+              "legendFormat": "Model API Requests"
+            }
+          ],
+          "gridPos": { "x": 0, "y": 5, "w": 12, "h": 5 }
+        },
+        {
+          "title": "API Requests (Vector Database)",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(http_requests_total{job='vector-database'}[5m])",
+              "legendFormat": "Vector DB Requests"
+            }
+          ],
+          "gridPos": { "x": 12, "y": 5, "w": 12, "h": 5 }
+        },
+        {
+          "title": "ChromaDB Query Latency",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job='vector-database'}[5m]))",
+              "legendFormat": "p95 Latency"
+            }
+          ],
+          "gridPos": { "x": 0, "y": 10, "w": 12, "h": 5 }
+        },
+        {
+          "title": "FastAPI Model Response Time",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job='model-serving'}[5m]))",
+              "legendFormat": "p95 Latency"
+            }
+          ],
+          "gridPos": { "x": 12, "y": 10, "w": 12, "h": 5 }
+        }
+      ],
+      "schemaVersion": 36,
+      "version": 1
+    }
+  }

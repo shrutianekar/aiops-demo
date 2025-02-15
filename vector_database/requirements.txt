@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sentence-transformers
+torch
+chromadb
+loguru
+prometheus-fastapi-instrumentator

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aiops-ingress
+spec:
+  rules:
+    - host: aiops.local
+      http:
+        paths:
+          - path: /model
+            pathType: Prefix
+            backend:
+              service:
+                name: aiops-service
+                port:
+                  number: 8501
+          - path: /vector
+            pathType: Prefix
+            backend:
+              service:
+                name: aiops-service
+                port:
+                  number: 8000

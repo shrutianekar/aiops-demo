@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-fine-tuning
+spec:
+  backoffLimit: 3  # Retries in case of failure
+  template:
+    spec:
+      containers:
+        - name: fine-tune
+          image: shruti1997/ai-fine-tune:latest
+          imagePullPolicy: Always
+          command: ["python", "/app/mlops/model_train_pipeline.py"]
+          resources:
+            requests:
+              cpu: "2"
+              memory: "4Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+          volumeMounts:
+            - name: model-storage
+              mountPath: /app/models  # Adjust based on where your script expects data
+      restartPolicy: Never
+      volumes:
+        - name: model-storage
+          emptyDir: {}  # Use a PersistentVolumeClaim if needed

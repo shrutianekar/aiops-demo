@@ -1,0 +1,44 @@
+name: Deploy AIOps App to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Build and Push AIOps App"]
+    types:
+      - completed
+    branches:
+      - main
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: shruti1997/aiops
+  KUBE_NAMESPACE: aiops
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+
+      - name: Configure Kubernetes Context
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f k8s/
+
+      - name: Update Deployment Image
+        run: |
+          kubectl set image deployment/aiops-app \
+            model-serving=$REGISTRY/$IMAGE_NAME:latest \
+            vector-database=$REGISTRY/$IMAGE_NAME:latest \
+            -n $KUBE_NAMESPACE

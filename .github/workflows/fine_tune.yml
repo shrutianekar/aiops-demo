@@ -1,0 +1,23 @@
+name: Fine-Tune AI Model
+
+on:
+  push:
+    paths:
+      - "data/dataset.jsonl"
+
+jobs:
+  fine-tune:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubernetes Context
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      - name: Trigger Fine-Tuning Job
+        run: |
+          kubectl apply -f k8s/model_fine_tune_job.yaml

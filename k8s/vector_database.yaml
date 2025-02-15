@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vector-database
+  labels:
+    app: vector-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vector-database
+  template:
+    metadata:
+      labels:
+        app: vector-database
+    spec:
+      containers:
+      - name: chromadb
+        image: shruti1997/aiops:latest
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: chroma-storage
+          mountPath: /app/chroma_db
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        env:
+        - name: CHROMA_DB_PATH
+          value: "/app/chroma_db"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+      volumes:
+      - name: chroma-storage
+        persistentVolumeClaim:
+          claimName: chroma-pvc
